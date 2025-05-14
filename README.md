@@ -1,7 +1,8 @@
 
 # Shoppie - Microservices E-Commerce Application
 
-This is a microservices-based e-commerce application built with React, Django, Flask, and RabbitMQ.
+This is a microservices-based e-commerce application demo built with React, Django, Flask, redis and RabbitMQ.
+This project is only for test and understanding of microservice architecture. This was developped for seamless test of microservice and deployment of the services on a kubernetes cluster as well as on docker compose. 
 
 ## Architecture
 
@@ -18,12 +19,24 @@ The application consists of:
 9. **Analytics Service (Flask)** - Business analytics and reporting
 10. **RabbitMQ** - Message queue for inter-service communication
 
+## Repositories of all services:
+1. **React Frontend** - Single frontend application with role-based UI
+2. **Auth Service (Django/DRF)** - Handles user authentication
+3. **Inventory Management Service (Flask)** - Product and inventory management
+4. **Product Catalog Service (Flask)** - Product display for customers
+5. **Cart Service (Flask)** - Shopping cart management
+6. **Order Service (Flask)** - Order processing and management
+7. **Payment Service (Flask)** - Payment processing
+8. **Shipping Service (Flask)** - Shipping and fulfillment
+9. **Analytics Service (Flask)** - Business analytics and reporting
+
 ## Getting Started
 
 ### Prerequisites
 
 - Docker and Docker Compose
 - Node.js (for local development)
+- python
 
 ### Running with Docker Compose
 

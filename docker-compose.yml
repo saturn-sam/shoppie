@@ -1,0 +1,374 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    restart: unless-stopped
+    networks:
+      - shoppie-network
+  # Frontend service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_URL=http://localhost:5010/cart-api
+      - VITE_AUTH_API_URL=http://localhost:8000/api/auth
+      - VITE_INVENTORY_API_URL=http://localhost:5001/inventory-api
+      - VITE_PRODUCT_CATALOG_API_URL=http://localhost:5002/catalog-api
+      - VITE_ORDER_API_URL=http://localhost:5009/order-api
+      - VITE_PAYMENT_API_URL=http://localhost:5004/payment-api
+      - VITE_SHIPPING_API_URL=http://localhost:5005/shipping-api
+      - VITE_ANALYTICS_API_URL=http://localhost:5006/analytics-api
+    depends_on:
+      - auth-service
+      - inventory-service
+      - product-catalog-service
+      - order-service
+      - payment-service
+      - shipping-service
+      - analytics-service
+    networks:
+      - shoppie-network
+
+  # Auth service - Django/DRF
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./auth-service:/app
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=your_secret_key
+      - DATABASE_URL=postgres://postgres:postgres@auth-db:5432/auth_db
+      - JWT_SECRET_KEY=your_jwt_secret_key
+    depends_on:
+      - auth-db
+    networks:
+      - shoppie-network
+
+  # Auth Database
+  auth-db:
+    image: postgres:17
+    volumes:
+      - auth_postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=auth_db
+    ports:
+      - "5432:5432"
+    networks:
+      - shoppie-network
+
+  # Inventory Management Service - Flask
+  inventory-service:
+    build:
+      context: ./inventory-service
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./inventory-service:/app
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - DATABASE_URL=postgres://postgres:postgres@inventory-db:5432/inventory_db
+      - MESSAGE_QUEUE_URL=amqp://guest:guest@rabbitmq:5672
+      - JWT_SECRET_KEY=your_secret_key
+      - ORDER_SERVICE_URL=http://order-service:5000
+      - PAYMENT_SERVICE_URL=http://payment-service:5000
+      - SHIPPING_SERVICE_URL=http://shipping-service:5000
+    depends_on:
+      - inventory-db
+      - rabbitmq
+    networks:
+      - shoppie-network
+
+  # Inventory Database
+  inventory-db:
+    image: postgres:17
+    volumes:
+      - inventory_postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=inventory_db
+    ports:
+      - "5433:5432"
+    networks:
+      - shoppie-network
+
+  # Product Catalog Service - Flask
+  product-catalog-service:
+    build:
+      context: ./product-catalog-service
+      dockerfile: Dockerfile
+    ports:
+      - "5002:5000"
+    volumes:
+      - ./product-catalog-service:/app
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - DATABASE_URL=postgres://postgres:postgres@product-catalog-db:5432/product_catalog_db
+      - MESSAGE_QUEUE_URL=amqp://guest:guest@rabbitmq:5672
+      - JWT_SECRET_KEY=your_secret_key
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - product-catalog-db
+      - rabbitmq
+    networks:
+      - shoppie-network
+
+  # Product Catalog Database
+  product-catalog-db:
+    image: postgres:17
+    volumes:
+      - product_catalog_postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=product_catalog_db
+    ports:
+      - "5434:5432"
+    networks:
+      - shoppie-network
+
+  cart-service:
+    build:
+      context: ./cart-service
+      dockerfile: Dockerfile
+    ports:
+      - "5010:5000"
+    volumes:
+      - ./cart-service:/app
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@cart-db:5432/cart_db
+      - MESSAGE_QUEUE_URL=amqp://guest:guest@rabbitmq:5672
+      - JWT_SECRET_KEY=your_secret_key
+    depends_on:
+      - cart-db
+      - rabbitmq
+    networks:
+      - shoppie-network
+
+  # Cart Database
+  cart-db:
+    image: postgres:17
+    volumes:
+      - cart_postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=cart_db
+    ports:
+      - "5440:5432"
+    networks:
+      - shoppie-network
+
+
+  # Order Service
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    ports:
+      - "5009:5000"
+    volumes:
+      - ./order-service:/app
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@order-db:5432/order_db
+      - MESSAGE_QUEUE_URL=amqp://guest:guest@rabbitmq:5672
+      - PAYMENT_SERVICE_URL=http://payment-service:5000
+      - SHIPPING_SERVICE_URL=http://shipping-service:5000
+      - INVENTORY_URL=http://inventory-service:5000/inventory-api
+      - JWT_SECRET_KEY=your_secret_key
+    depends_on:
+      - order-db
+      - rabbitmq
+    networks:
+      - shoppie-network
+
+  # Order Database
+  order-db:
+    image: postgres:17
+    volumes:
+      - order_postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=order_db
+    ports:
+      - "5435:5432"
+    networks:
+      - shoppie-network
+
+  # Payment Service
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    ports:
+      - "5004:5000"
+    volumes:
+      - ./payment-service:/app
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@payment-db:5432/payment_db
+      - MESSAGE_QUEUE_URL=amqp://guest:guest@rabbitmq:5672
+      - JWT_SECRET_KEY=your_secret_key
+      - ORDER_SERVICE_URL=http://order-service:5000/order-api
+    depends_on:
+      - payment-db
+      - rabbitmq
+    networks:
+      - shoppie-network
+
+  # Payment Database
+  payment-db:
+    image: postgres:17
+    volumes:
+      - payment_postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=payment_db
+    ports:
+      - "5436:5432"
+    networks:
+      - shoppie-network
+
+  # Shipping Service
+  shipping-service:
+    build:
+      context: ./shipping-service
+      dockerfile: Dockerfile
+    ports:
+      - "5005:5000"
+    volumes:
+      - ./shipping-service:/app
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@shipping-db:5432/shipping_db
+      - MESSAGE_QUEUE_URL=amqp://guest:guest@rabbitmq:5672
+      - JWT_SECRET_KEY=your_secret_key
+      - ORDER_SERVICE_URL=http://order-service:5000
+    depends_on:
+      - shipping-db
+      - rabbitmq
+    networks:
+      - shoppie-network
+
+  # Shipping Database
+  shipping-db:
+    image: postgres:17
+    volumes:
+      - shipping_postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=shipping_db
+    ports:
+      - "5437:5432"
+    networks:
+      - shoppie-network
+
+  # Analytics Service
+  analytics-service:
+    build:
+      context: ./analytics-service
+      dockerfile: Dockerfile
+    ports:
+      - "5006:5000"
+    volumes:
+      - ./analytics-service:/app
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@analytics-db:5432/analytics_db
+      - MESSAGE_QUEUE_URL=amqp://guest:guest@rabbitmq:5672
+      - JWT_SECRET_KEY=your_secret_key
+    depends_on:
+      - analytics-db
+      - rabbitmq
+    networks:
+      - shoppie-network
+
+  # Analytics Database
+  analytics-db:
+    image: postgres:17
+    volumes:
+      - analytics_postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=analytics_db
+    ports:
+      - "5438:5432"
+    networks:
+      - shoppie-network
+
+  # Message Queue - RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"  # AMQP protocol port
+      - "15672:15672"  # Management UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - shoppie-network
+      
+  # Data initialization service
+  # init-service:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   command: ["python", "init-data.py"]
+  #   depends_on:
+  #     - auth-service
+  #     - inventory-service
+  #     - product-catalog-service
+  #     - rabbitmq
+  #     - order-service
+  #     - payment-service
+  #     - shipping-service
+  #     - analytics-service
+  #   networks:
+  #     - shoppie-network
+  #   environment:
+  #     - AUTH_SERVICE_URL=http://auth-service:8000
+  #     - INVENTORY_SERVICE_URL=http://inventory-service:5000
+  #     - PRODUCT_CATALOG_SERVICE_URL=http://product-catalog-service:5000
+  #     - ORDER_SERVICE_URL=http://order-service:5000
+  #     - PAYMENT_SERVICE_URL=http://payment-service:5000
+  #     - SHIPPING_SERVICE_URL=http://shipping-service:5000
+  #     - ANALYTICS_SERVICE_URL=http://analytics-service:5000
+  #   restart: on-failure
+
+volumes:
+  auth_postgres_data:
+  inventory_postgres_data:
+  product_catalog_postgres_data:
+  order_postgres_data:
+  payment_postgres_data:
+  shipping_postgres_data:
+  analytics_postgres_data:
+  rabbitmq_data:
+  cart_postgres_data:
+  redis-data:
+networks:
+  shoppie-network:
+    driver: bridge

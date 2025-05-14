@@ -13,41 +13,41 @@ services:
     networks:
       - shoppie-network
   # Frontend service
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:80"
-    environment:
-      - VITE_API_URL=http://localhost:5010/cart-api
-      - VITE_AUTH_API_URL=http://localhost:8000/api/auth
-      - VITE_INVENTORY_API_URL=http://localhost:5001/inventory-api
-      - VITE_PRODUCT_CATALOG_API_URL=http://localhost:5002/catalog-api
-      - VITE_ORDER_API_URL=http://localhost:5009/order-api
-      - VITE_PAYMENT_API_URL=http://localhost:5004/payment-api
-      - VITE_SHIPPING_API_URL=http://localhost:5005/shipping-api
-      - VITE_ANALYTICS_API_URL=http://localhost:5006/analytics-api
-    depends_on:
-      - auth-service
-      - inventory-service
-      - product-catalog-service
-      - order-service
-      - payment-service
-      - shipping-service
-      - analytics-service
-    networks:
-      - shoppie-network
+  # frontend:
+  #   build:
+  #     context: ../shoppie-frontend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "3000:80"
+  #   environment:
+  #     - VITE_API_URL=http://localhost:5010/cart-api
+  #     - VITE_AUTH_API_URL=http://localhost:8000/api/auth
+  #     - VITE_INVENTORY_API_URL=http://localhost:5001/inventory-api
+  #     - VITE_PRODUCT_CATALOG_API_URL=http://localhost:5002/catalog-api
+  #     - VITE_ORDER_API_URL=http://localhost:5009/order-api
+  #     - VITE_PAYMENT_API_URL=http://localhost:5004/payment-api
+  #     - VITE_SHIPPING_API_URL=http://localhost:5005/shipping-api
+  #     - VITE_ANALYTICS_API_URL=http://localhost:5006/analytics-api
+  #   depends_on:
+  #     - auth-service
+  #     - inventory-service
+  #     - product-catalog-service
+  #     - order-service
+  #     - payment-service
+  #     - shipping-service
+  #     - analytics-service
+  #   networks:
+  #     - shoppie-network
 
   # Auth service - Django/DRF
   auth-service:
     build:
-      context: ./auth-service
+      context: ../shoppie-auth
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
     volumes:
-      - ./auth-service:/app
+      - ../shoppie-auth:/app
     environment:
       - DEBUG=1
       - SECRET_KEY=your_secret_key
@@ -75,12 +75,12 @@ services:
   # Inventory Management Service - Flask
   inventory-service:
     build:
-      context: ./inventory-service
+      context: ../shoppie-inventory-service
       dockerfile: Dockerfile
     ports:
       - "5001:5000"
     volumes:
-      - ./inventory-service:/app
+      - ../shoppie-inventory-service:/app
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=development
@@ -113,12 +113,12 @@ services:
   # Product Catalog Service - Flask
   product-catalog-service:
     build:
-      context: ./product-catalog-service
+      context: ../shoppie-product-catalog-service
       dockerfile: Dockerfile
     ports:
       - "5002:5000"
     volumes:
-      - ./product-catalog-service:/app
+      - ../shoppie-product-catalog-service:/app
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=development
@@ -149,12 +149,12 @@ services:
 
   cart-service:
     build:
-      context: ./cart-service
+      context: ../shoppie-cart-service
       dockerfile: Dockerfile
     ports:
       - "5010:5000"
     volumes:
-      - ./cart-service:/app
+      - ../shoppie-cart-service:/app
     environment:
       - DATABASE_URL=postgres://postgres:postgres@cart-db:5432/cart_db
       - MESSAGE_QUEUE_URL=amqp://guest:guest@rabbitmq:5672
@@ -183,12 +183,12 @@ services:
   # Order Service
   order-service:
     build:
-      context: ./order-service
+      context: ../shoppie-order-service
       dockerfile: Dockerfile
     ports:
       - "5009:5000"
     volumes:
-      - ./order-service:/app
+      - ../shoppie-order-service:/app
     environment:
       - DATABASE_URL=postgres://postgres:postgres@order-db:5432/order_db
       - MESSAGE_QUEUE_URL=amqp://guest:guest@rabbitmq:5672
@@ -219,12 +219,12 @@ services:
   # Payment Service
   payment-service:
     build:
-      context: ./payment-service
+      context: ../shoppie-payment-service
       dockerfile: Dockerfile
     ports:
       - "5004:5000"
     volumes:
-      - ./payment-service:/app
+      - ../shoppie-payment-service:/app
     environment:
       - DATABASE_URL=postgres://postgres:postgres@payment-db:5432/payment_db
       - MESSAGE_QUEUE_URL=amqp://guest:guest@rabbitmq:5672
@@ -253,12 +253,12 @@ services:
   # Shipping Service
   shipping-service:
     build:
-      context: ./shipping-service
+      context: ../shoppie-shipping-service
       dockerfile: Dockerfile
     ports:
       - "5005:5000"
     volumes:
-      - ./shipping-service:/app
+      - ../shoppie-shipping-service:/app
     environment:
       - DATABASE_URL=postgres://postgres:postgres@shipping-db:5432/shipping_db
       - MESSAGE_QUEUE_URL=amqp://guest:guest@rabbitmq:5672
@@ -287,12 +287,12 @@ services:
   # Analytics Service
   analytics-service:
     build:
-      context: ./analytics-service
+      context: ../shoppie-analytics-service
       dockerfile: Dockerfile
     ports:
       - "5006:5000"
     volumes:
-      - ./analytics-service:/app
+      - ../shoppie-analytics-service:/app
     environment:
       - DATABASE_URL=postgres://postgres:postgres@analytics-db:5432/analytics_db
       - MESSAGE_QUEUE_URL=amqp://guest:guest@rabbitmq:5672

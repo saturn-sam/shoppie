@@ -20,15 +20,15 @@ The application consists of:
 10. **RabbitMQ** - Message queue for inter-service communication
 
 ## Repositories of all services:
-1. **React Frontend** - Single frontend application with role-based UI
-2. **Auth Service (Django/DRF)** - Handles user authentication
-3. **Inventory Management Service (Flask)** - Product and inventory management
-4. **Product Catalog Service (Flask)** - Product display for customers
-5. **Cart Service (Flask)** - Shopping cart management
-6. **Order Service (Flask)** - Order processing and management
-7. **Payment Service (Flask)** - Payment processing
-8. **Shipping Service (Flask)** - Shipping and fulfillment
-9. **Analytics Service (Flask)** - Business analytics and reporting
+1. **React Frontend** - [https://github.com/saturn-sam/shoppie-frontend][website]
+2. **Auth Service (Django/DRF)** - [https://github.com/saturn-sam/shoppie-auth][website]
+3. **Inventory Management Service (Flask)** -[https://github.com/saturn-sam/shoppie-inventory-service][website]
+4. **Product Catalog Service (Flask)** - [https://github.com/saturn-sam/shoppie-product-catalog-service][website]
+5. **Cart Service (Flask)** - [https://github.com/saturn-sam/shoppie-cart-service][website]
+6. **Order Service (Flask)** - [https://github.com/saturn-sam/shoppie-order-service][website]
+7. **Payment Service (Flask)** - [https://github.com/saturn-sam/shoppie-payment-service][website]
+8. **Shipping Service (Flask)** - [https://github.com/saturn-sam/shoppie-shipping-service][website]
+9. **Analytics Service (Flask)** - [https://github.com/saturn-sam/shoppie-analytics-service][website]
 
 ## Getting Started
 
@@ -42,6 +42,14 @@ The application consists of:
 
 1. Clone the repository
 2. Start the services:
+
+```bash
+chmod u+x setup.sh
+```
+
+```bash
+sh setup.sh
+```
 
 ```bash
 docker-compose up -d

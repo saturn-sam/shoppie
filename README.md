@@ -20,15 +20,15 @@ The application consists of:
 10. **RabbitMQ** - Message queue for inter-service communication
 
 ## Repositories of all services:
-1. **React Frontend** - [https://github.com/saturn-sam/shoppie-frontend][website]
-2. **Auth Service (Django/DRF)** - [https://github.com/saturn-sam/shoppie-auth][website]
-3. **Inventory Management Service (Flask)** -[https://github.com/saturn-sam/shoppie-inventory-service][website]
-4. **Product Catalog Service (Flask)** - [https://github.com/saturn-sam/shoppie-product-catalog-service][website]
-5. **Cart Service (Flask)** - [https://github.com/saturn-sam/shoppie-cart-service][website]
-6. **Order Service (Flask)** - [https://github.com/saturn-sam/shoppie-order-service][website]
-7. **Payment Service (Flask)** - [https://github.com/saturn-sam/shoppie-payment-service][website]
-8. **Shipping Service (Flask)** - [https://github.com/saturn-sam/shoppie-shipping-service][website]
-9. **Analytics Service (Flask)** - [https://github.com/saturn-sam/shoppie-analytics-service][website]
+1. **React Frontend** - [https://github.com/saturn-sam/shoppie-frontend]
+2. **Auth Service (Django/DRF)** - [https://github.com/saturn-sam/shoppie-auth]
+3. **Inventory Management Service (Flask)** -[https://github.com/saturn-sam/shoppie-inventory-service]
+4. **Product Catalog Service (Flask)** - [https://github.com/saturn-sam/shoppie-product-catalog-service]
+5. **Cart Service (Flask)** - [https://github.com/saturn-sam/shoppie-cart-service]
+6. **Order Service (Flask)** - [https://github.com/saturn-sam/shoppie-order-service]
+7. **Payment Service (Flask)** - [https://github.com/saturn-sam/shoppie-payment-service]
+8. **Shipping Service (Flask)** - [https://github.com/saturn-sam/shoppie-shipping-service]
+9. **Analytics Service (Flask)** - [https://github.com/saturn-sam/shoppie-analytics-service]
 
 ## Getting Started
 
